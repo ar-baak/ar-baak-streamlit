@@ -2,17 +2,19 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
 from typing import Dict, List
+
+import pandas as pd
+import pendulum
 import streamlit as st
 from google.cloud import firestore
-import pandas as pd
+from google.oauth2 import service_account
 from st_aggrid import (
-    GridOptionsBuilder,
     AgGrid,
-    GridUpdateMode,
-    DataReturnMode,
     ColumnsAutoSizeMode,
+    DataReturnMode,
+    GridOptionsBuilder,
+    GridUpdateMode,
 )
-import pendulum
 
 st.set_page_config(page_title="阿伯賭馬", layout="wide", menu_items=dict())
 
@@ -366,8 +368,11 @@ def get_entries_of_race(race_path):
     st.session_state.grid_options = gb.build()
 
 
+credentials = service_account.Credentials.from_service_account_info(
+    st.secrets["gcp_service_account"]
+)
 # Authenticate to Firestore with the JSON account key.
-db = firestore.Client()
+db = firestore.Client(credentials=credentials)
 
 today = pendulum.today(tz="Asia/Hong_Kong")
 print(today)
