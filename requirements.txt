@@ -4,3 +4,4 @@ google-cloud-audit-log==0.2.4
 google-cloud-core==2.3.2
 google-cloud-firestore==2.7.1
 google-cloud-logging==3.2.
+pendulum==2.1.2
