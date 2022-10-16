@@ -15,6 +15,7 @@ from st_aggrid import (
     GridOptionsBuilder,
     GridUpdateMode,
 )
+from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="阿伯賭馬", layout="wide", menu_items=dict())
 
@@ -316,8 +317,9 @@ class Trainer(FirestoreRecord):
 
 @st.cache(ttl=5)
 def get_entries_of_race(race_path):
-    print(race_path)
-    race_ref = db.document(race_path)
+    st.session_state.race_path = race_path
+    st.session_state.get_entries_of_race = True
+    race_ref = db.document(st.session_state.race_path)
     race = Race.from_dict(race_ref.get().to_dict())
     st.session_state.race = race
     entry_refs = race.entries
@@ -363,10 +365,17 @@ def get_entries_of_race(race_path):
             }
         )
     st.session_state.entries = pd.DataFrame(entries).sort_values(by="No.")
-    gb = GridOptionsBuilder.from_dataframe(st.session_state.entries)
-    gb.configure_columns()
-    st.session_state.grid_options = gb.build()
+    st.session_state.get_entries_of_race = False
 
+
+if "entries" not in st.session_state:
+    st.session_state.entries = pd.DataFrame()
+if "race_path" not in st.session_state:
+    st.session_state.race_path = None
+if "race" not in st.session_state:
+    st.session_state.race = None
+if "get_entries_of_race" not in st.session_state:
+    st.session_state.get_entries_of_race = False
 
 credentials = service_account.Credentials.from_service_account_info(
     st.secrets["gcp_service_account"]
@@ -388,8 +397,11 @@ else:
     st.write("今日係" + today.format("Y年 M月 D日 dddd", locale="zh"))
     meeting = Meeting.from_dict(doc.to_dict())
 
-    if "entries" not in st.session_state:
-        st.session_state.entries = pd.DataFrame()
+    autorefresh = st_autorefresh(interval=10000)
+
+    if autorefresh:
+        if st.session_state.race_path and not st.session_state.get_entries_of_race:
+            get_entries_of_race(st.session_state.race_path)
 
     for col, race in zip(st.columns(len(meeting.races)), meeting.races):
         col.button(
