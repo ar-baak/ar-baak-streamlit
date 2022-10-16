@@ -411,7 +411,7 @@ else:
                     st.session_state.race.race_time.timestamp()
                 )
                 .in_timezone("Asia/Hong_Kong")
-                .format("HH點MM分"),
+                .format("HH點mm分"),
             )
             col3.metric(
                 label="咩班",
