@@ -358,8 +358,8 @@ def get_entries_of_race(race_path):
                 "Place Odds": data["hkjc_odds_place"],
                 "Lay Win Discount": data["ctb_lay_win_discount"],
                 "Lay Place Discount": data["ctb_lay_place_discount"],
-                "Back Win Discount": data["ctb_back_win_discount"],
-                "Back Place Discount": data["ctb_back_place_discount"],
+                # "Back Win Discount": data["ctb_back_win_discount"],
+                # "Back Place Discount": data["ctb_back_place_discount"],
             }
         )
     st.session_state.entries = pd.DataFrame(entries).sort_values(by="No.")
@@ -375,7 +375,6 @@ credentials = service_account.Credentials.from_service_account_info(
 db = firestore.Client(credentials=credentials)
 
 today = pendulum.today(tz="Asia/Hong_Kong")
-print(today)
 # Create a reference to the Google post.
 doc_ref = db.collection("meetings").document(f"{today:%Y%m%d}")
 
